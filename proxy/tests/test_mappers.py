@@ -20,3 +20,20 @@ def test_map_fixtures_extracts_core_fields():
 
 def test_map_fixtures_empty_response():
     assert map_fixtures({"response": []}) == []
+
+from app.mappers import map_events, map_standings
+
+EVENTS = json.loads((pathlib.Path(__file__).parent / "fixtures" / "af_events.json").read_text())
+STANDINGS = json.loads((pathlib.Path(__file__).parent / "fixtures" / "af_standings.json").read_text())
+
+def test_map_events():
+    assert map_events(EVENTS) == [
+        {"minute": 12, "team": "Brazil", "player": "Vinicius", "type": "Goal", "detail": "Normal Goal"},
+        {"minute": 34, "team": "Germany", "player": "Kimmich", "type": "Card", "detail": "Yellow Card"},
+    ]
+
+def test_map_standings():
+    out = map_standings(STANDINGS)
+    assert out[0] == {"rank": 1, "team": "Mexico", "played": 2, "win": 2,
+                      "draw": 0, "lose": 0, "goalsDiff": 3, "points": 6}
+    assert len(out) == 2
