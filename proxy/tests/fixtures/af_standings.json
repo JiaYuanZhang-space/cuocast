@@ -1,0 +1,6 @@
+{"response": [{"league": {"standings": [[
+  {"rank": 1, "team": {"name": "Mexico"}, "points": 6,
+   "all": {"played": 2, "win": 2, "draw": 0, "lose": 0}, "goalsDiff": 3},
+  {"rank": 2, "team": {"name": "Netherlands"}, "points": 4,
+   "all": {"played": 2, "win": 1, "draw": 1, "lose": 0}, "goalsDiff": 2}
+]]}}]}
