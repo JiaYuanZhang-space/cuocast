@@ -35,3 +35,20 @@ def test_fixtures_endpoint_returns_mapped(monkeypatch):
     body = r.json()
     assert body["stale"] is False
     assert body["data"][0]["home"] == "Brazil"
+
+def test_odds_returns_null_when_scrape_fails(monkeypatch):
+    async def boom(match_id):
+        raise RuntimeError("scrape failed")
+    monkeypatch.setattr(main, "fetch_odds", boom)
+    main.cache._store.clear()
+    r = client.get("/odds?matchId=101")
+    assert r.status_code == 200
+    assert r.json()["data"] is None
+
+def test_odds_returns_parsed(monkeypatch):
+    async def ok(match_id):
+        return {"wdl": {"home": 1.95, "draw": 3.4, "away": 3.75}}
+    monkeypatch.setattr(main, "fetch_odds", ok)
+    main.cache._store.clear()
+    r = client.get("/odds?matchId=101")
+    assert r.json()["data"]["wdl"]["home"] == 1.95

@@ -5,6 +5,7 @@ from app.cache import TTLCache
 from app.upstream import ApiFootball
 from app.service import cached_fetch
 from app import mappers
+from app.odds_scraper import fetch_odds
 
 app = FastAPI(title="WorldCup Proxy")
 cache = TTLCache()
@@ -46,3 +47,13 @@ async def standings():
         return await cached_fetch(cache, "standings", TTL["standings"], fetch)
     except httpx.HTTPStatusError:
         raise HTTPException(status_code=502, detail="upstream unavailable")
+
+@app.get("/odds")
+async def odds(matchId: str):
+    import app.main as _self
+    async def fetch():
+        return await _self.fetch_odds(matchId)
+    try:
+        return await cached_fetch(cache, f"odds:{matchId}", TTL["odds"], fetch)
+    except Exception:
+        return {"data": None, "stale": True}
