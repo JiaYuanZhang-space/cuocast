@@ -45,3 +45,14 @@ def test_map_bracket_groups_by_round():
     assert out["Round of 16"][0]["home"] == "Brazil"
     assert out["Round of 16"][0]["homeScore"] == 3
     assert out["Quarter-finals"][0]["homeScore"] is None
+
+def test_map_fixtures_handles_missing_goals_key():
+    data = {"response": [{
+        "fixture": {"id": 9, "date": "2026-06-14T04:00:00+00:00",
+                    "status": {"short": "PST", "elapsed": None}, "venue": {"name": "X"}},
+        "league": {"round": "Group Stage - 1"},
+        "teams": {"home": {"name": "A"}, "away": {"name": "B"}}
+    }]}
+    out = map_fixtures(data)
+    assert out[0]["homeScore"] is None
+    assert out[0]["awayScore"] is None

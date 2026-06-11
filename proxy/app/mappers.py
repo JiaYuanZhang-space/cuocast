@@ -11,8 +11,8 @@ def map_fixtures(data: dict) -> list[dict]:
             "round": item.get("league", {}).get("round"),
             "home": item["teams"]["home"]["name"],
             "away": item["teams"]["away"]["name"],
-            "homeScore": item["goals"]["home"],
-            "awayScore": item["goals"]["away"],
+            "homeScore": (item.get("goals") or {}).get("home"),
+            "awayScore": (item.get("goals") or {}).get("away"),
         })
     return out
 
@@ -56,7 +56,7 @@ def map_bracket(data: dict) -> dict:
             "id": item["fixture"]["id"],
             "home": item["teams"]["home"]["name"],
             "away": item["teams"]["away"]["name"],
-            "homeScore": item["goals"]["home"],
-            "awayScore": item["goals"]["away"],
+            "homeScore": (item.get("goals") or {}).get("home"),
+            "awayScore": (item.get("goals") or {}).get("away"),
         })
     return rounds
