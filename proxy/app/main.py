@@ -60,9 +60,8 @@ async def bracket():
 
 @app.get("/odds")
 async def odds(matchId: str):
-    import app.main as _self
     async def fetch():
-        return await _self.fetch_odds(matchId)
+        return await fetch_odds(matchId)
     try:
         return await cached_fetch(cache, f"odds:{matchId}", TTL["odds"], fetch)
     except Exception:
