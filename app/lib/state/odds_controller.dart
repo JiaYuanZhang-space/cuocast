@@ -6,6 +6,7 @@ class OddsController extends ChangeNotifier {
   final Repository _repo;
   OddsController(this._repo);
 
+  bool _disposed = false;
   bool loading = false;
   Object? error;
   Odds? odds;
@@ -13,7 +14,7 @@ class OddsController extends ChangeNotifier {
   Future<void> load(int matchId) async {
     loading = true;
     error = null;
-    notifyListeners();
+    if (!_disposed) notifyListeners();
     try {
       final res = await _repo.fetchOdds(matchId);
       odds = res.data;
@@ -21,7 +22,13 @@ class OddsController extends ChangeNotifier {
       error = e;
     } finally {
       loading = false;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

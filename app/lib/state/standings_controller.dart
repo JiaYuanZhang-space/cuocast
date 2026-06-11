@@ -6,6 +6,7 @@ class StandingsController extends ChangeNotifier {
   final Repository _repo;
   StandingsController(this._repo);
 
+  bool _disposed = false;
   bool loading = false;
   Object? error;
   List<Standing>? standings;
@@ -14,7 +15,7 @@ class StandingsController extends ChangeNotifier {
   Future<void> load() async {
     loading = true;
     error = null;
-    notifyListeners();
+    if (!_disposed) notifyListeners();
     try {
       final res = await _repo.fetchStandings();
       standings = res.data;
@@ -23,7 +24,13 @@ class StandingsController extends ChangeNotifier {
       error = e;
     } finally {
       loading = false;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

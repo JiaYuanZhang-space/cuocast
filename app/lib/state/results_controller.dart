@@ -6,6 +6,7 @@ class ResultsController extends ChangeNotifier {
   final Repository _repo;
   ResultsController(this._repo);
 
+  bool _disposed = false;
   bool loading = false;
   Object? error;
   List<Match>? matches;
@@ -14,7 +15,7 @@ class ResultsController extends ChangeNotifier {
   Future<void> load() async {
     loading = true;
     error = null;
-    notifyListeners();
+    if (!_disposed) notifyListeners();
     try {
       final res = await _repo.fetchResults();
       matches = res.data;
@@ -23,7 +24,13 @@ class ResultsController extends ChangeNotifier {
       error = e;
     } finally {
       loading = false;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }
