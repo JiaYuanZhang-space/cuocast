@@ -20,19 +20,39 @@ class HomeScaffold extends StatefulWidget {
 
 class _HomeScaffoldState extends State<HomeScaffold> {
   int _index = 0;
+  late final FixturesController _fixtures;
+  late final LiveController _live;
+  late final ResultsController _results;
+  late final StandingsController _standings;
+  late final OddsController _odds;
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
     final r = widget.repository;
+    _fixtures = FixturesController(r);
+    _live = LiveController(r);
+    _results = ResultsController(r);
+    _standings = StandingsController(r);
+    _odds = OddsController(r);
     _pages = [
-      FixturesScreen(controller: FixturesController(r)),
-      LiveScreen(controller: LiveController(r)),
-      ResultsScreen(controller: ResultsController(r)),
-      StandingsScreen(controller: StandingsController(r)),
-      OddsScreen(controller: OddsController(r), matchId: 101),
+      FixturesScreen(controller: _fixtures),
+      LiveScreen(controller: _live),
+      ResultsScreen(controller: _results),
+      StandingsScreen(controller: _standings),
+      OddsScreen(controller: _odds, matchId: 101),
     ];
+  }
+
+  @override
+  void dispose() {
+    _fixtures.dispose();
+    _live.dispose(); // cancels the polling timer
+    _results.dispose();
+    _standings.dispose();
+    _odds.dispose();
+    super.dispose();
   }
 
   static const _titles = ['赛程', '实况', '结果', '积分', '赔率'];
