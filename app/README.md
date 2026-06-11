@@ -1,4 +1,4 @@
-# 世界杯 2026 App (Flutter)
+# 球程 CupCast (Flutter)
 
 经后端代理查看赛程/实况/结果/积分/赔率。
 

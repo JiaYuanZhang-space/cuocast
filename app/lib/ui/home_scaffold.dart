@@ -60,7 +60,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('世界杯 2026 · ${_titles[_index]}')),
+      appBar: AppBar(title: Text('球程 · ${_titles[_index]}')),
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,

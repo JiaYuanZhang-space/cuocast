@@ -28,7 +28,7 @@ class _WcAppState extends State<WcApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '世界杯 2026',
+      title: '球程 CupCast',
       theme: ThemeData.dark(useMaterial3: true),
       home: FutureBuilder<SharedPreferences>(
         future: _prefsFuture,
