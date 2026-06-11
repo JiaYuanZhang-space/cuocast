@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wc_app/models/odds.dart';
 import 'package:wc_app/state/odds_controller.dart';
 import 'package:wc_app/ui/widgets/async_view.dart';
 
@@ -37,13 +38,13 @@ class _OddsScreenState extends State<OddsScreen> {
       animation: widget.controller,
       builder: (context, _) {
         final c = widget.controller;
-        return AsyncView(
+        return AsyncView<Odds>(
           loading: c.loading,
           error: c.error,
           data: c.odds,
           onRetry: () => c.load(widget.matchId),
           builder: (odds) {
-            final wdl = c.odds!.wdl;
+            final wdl = odds.wdl;
             if (wdl == null) {
               return const Center(child: Text('暂无赔率'));
             }

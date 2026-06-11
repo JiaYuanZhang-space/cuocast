@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:wc_app/data/api_client.dart';
 import 'package:wc_app/data/local_cache.dart';
 import 'package:wc_app/models/api_response.dart';
@@ -19,7 +20,14 @@ class Repository {
       final json = await api.getJson(path, query: query);
       await cache.write(cacheKey, jsonEncode(json));
       return ApiResponse<T>.fromJson(json, parse);
-    } catch (e) {
+    } on ApiException {
+      final cached = cache.read(cacheKey);
+      if (cached != null) {
+        final json = jsonDecode(cached) as Map<String, dynamic>;
+        return ApiResponse<T>(data: parse(json['data']), stale: true);
+      }
+      rethrow;
+    } on SocketException {
       final cached = cache.read(cacheKey);
       if (cached != null) {
         final json = jsonDecode(cached) as Map<String, dynamic>;

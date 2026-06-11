@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wc_app/models/match.dart';
 import 'package:wc_app/state/live_controller.dart';
 import 'package:wc_app/ui/widgets/async_view.dart';
 import 'package:wc_app/ui/widgets/match_card.dart';
@@ -29,7 +30,7 @@ class _LiveScreenState extends State<LiveScreen> {
       animation: widget.controller,
       builder: (context, _) {
         final c = widget.controller;
-        return AsyncView<List>(
+        return AsyncView<List<Match>>(
           loading: c.loading,
           error: c.error,
           data: c.matches,

@@ -10,8 +10,20 @@ void main() {
   runApp(const WcApp());
 }
 
-class WcApp extends StatelessWidget {
+class WcApp extends StatefulWidget {
   const WcApp({super.key});
+  @override
+  State<WcApp> createState() => _WcAppState();
+}
+
+class _WcAppState extends State<WcApp> {
+  late final Future<SharedPreferences> _prefsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _prefsFuture = SharedPreferences.getInstance();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +31,7 @@ class WcApp extends StatelessWidget {
       title: '世界杯 2026',
       theme: ThemeData.dark(useMaterial3: true),
       home: FutureBuilder<SharedPreferences>(
-        future: SharedPreferences.getInstance(),
+        future: _prefsFuture,
         builder: (context, snap) {
           if (!snap.hasData) {
             return const Scaffold(body: Center(child: CircularProgressIndicator()));
