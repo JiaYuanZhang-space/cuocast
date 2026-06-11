@@ -1,0 +1,12 @@
+{
+  "response": [
+    {
+      "fixture": {"id": 101, "date": "2026-06-14T04:00:00+00:00",
+                  "status": {"short": "1H", "elapsed": 23},
+                  "venue": {"name": "AT&T Stadium"}},
+      "league": {"round": "Group Stage - 1"},
+      "teams": {"home": {"name": "Brazil"}, "away": {"name": "Germany"}},
+      "goals": {"home": 1, "away": 0}
+    }
+  ]
+}
