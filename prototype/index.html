@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界杯 App 原型 · WC2026</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1c2230; --line:#262d3a;
+    --txt:#e6edf3; --sub:#8b949e; --accent:#16a34a; --accent2:#22c55e;
+    --live:#ef4444; --gold:#f5b301; --blue:#2563eb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;}
+  body{background:#05070b;color:var(--txt);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 12px;gap:18px;}
+  .hero{text-align:center;max-width:420px;}
+  .hero h1{font-size:20px;letter-spacing:.5px;}
+  .hero p{color:var(--sub);font-size:13px;margin-top:6px;line-height:1.5;}
+  .badge{display:inline-block;background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;border-radius:20px;margin-top:8px;}
+
+  /* phone frame */
+  .phone{width:360px;height:740px;background:var(--bg);border-radius:38px;border:10px solid #11161d;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#11161d;border-radius:0 0 18px 18px;z-index:10;}
+
+  /* top app bar */
+  .appbar{padding:36px 16px 12px;display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(135deg,#0f2a1a,#0d1117);border-bottom:1px solid var(--line);}
+  .appbar .t{font-size:18px;font-weight:700;}
+  .appbar .t small{display:block;font-size:11px;color:var(--accent2);font-weight:500;}
+  .appbar .ico{width:34px;height:34px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:16px;}
+
+  /* scroll body */
+  .body{flex:1;overflow-y:auto;padding:12px;}
+  .body::-webkit-scrollbar{width:0;}
+
+  /* bottom nav */
+  .nav{display:flex;border-top:1px solid var(--line);background:#0a0e14;}
+  .nav button{flex:1;background:none;border:none;color:var(--sub);padding:10px 0 14px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+  .nav button .e{font-size:19px;filter:grayscale(1);opacity:.7;}
+  .nav button.active{color:var(--accent2);}
+  .nav button.active .e{filter:none;opacity:1;}
+
+  /* views */
+  .view{display:none;animation:fade .25s;}
+  .view.show{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* sticky filter chips */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:4px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{white-space:nowrap;font-size:12px;padding:6px 12px;border-radius:20px;background:var(--card2);color:var(--sub);border:1px solid var(--line);cursor:pointer;}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  .daygroup{font-size:12px;color:var(--sub);margin:14px 2px 8px;display:flex;align-items:center;gap:8px;}
+  .daygroup::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  /* match card */
+  .match{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;}
+  .match .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:10px;}
+  .match .row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;}
+  .team{display:flex;align-items:center;gap:8px;}
+  .team.right{flex-direction:row-reverse;text-align:right;}
+  .flag{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--card2);}
+  .team .nm{font-size:14px;font-weight:600;}
+  .score{font-size:20px;font-weight:800;letter-spacing:2px;text-align:center;min-width:54px;}
+  .vs{font-size:12px;color:var(--sub);text-align:center;min-width:54px;}
+  .pill{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:600;}
+  .pill.live{background:rgba(239,68,68,.15);color:var(--live);}
+  .pill.live::before{content:"●";margin-right:4px;animation:blink 1s infinite;}
+  @keyframes blink{50%{opacity:.3;}}
+  .pill.ft{background:var(--card2);color:var(--sub);}
+  .pill.up{background:rgba(37,99,235,.15);color:#60a5fa;}
+
+  /* live detail timeline */
+  .livehead{background:linear-gradient(135deg,#1a0f0f,#161b22);border:1px solid #3a2222;border-radius:16px;padding:16px;margin-bottom:12px;text-align:center;}
+  .livehead .min{color:var(--live);font-weight:700;font-size:13px;margin-bottom:10px;}
+  .livehead .sc{display:flex;align-items:center;justify-content:center;gap:18px;}
+  .livehead .sc .big{font-size:34px;font-weight:800;}
+  .livehead .sc .fl{font-size:30px;}
+  .timeline{position:relative;padding-left:0;}
+  .ev{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:center;}
+  .ev .tm{width:38px;color:var(--sub);font-size:12px;}
+  .ev .ic{font-size:15px;}
+  .ev.r{flex-direction:row-reverse;text-align:right;}
+  .ev.r .tm{text-align:right;}
+
+  /* standings table */
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th,td{padding:8px 4px;text-align:center;border-bottom:1px solid var(--line);}
+  th{color:var(--sub);font-weight:500;font-size:11px;}
+  td.tn{text-align:left;font-weight:600;}
+  tr.qual td:first-child{box-shadow:inset 3px 0 0 var(--accent2);}
+  .grphdr{font-size:13px;font-weight:700;margin:16px 2px 6px;color:var(--gold);}
+
+  /* bracket */
+  .bracket{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;}
+  .round{display:flex;flex-direction:column;justify-content:space-around;gap:14px;min-width:130px;}
+  .round h4{font-size:11px;color:var(--sub);text-align:center;margin-bottom:2px;}
+  .tie{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .tie div{display:flex;justify-content:space-between;padding:7px 9px;font-size:12px;}
+  .tie div+div{border-top:1px solid var(--line);}
+  .tie .w{font-weight:700;color:var(--accent2);}
+  .tie .s{color:var(--sub);}
+
+  /* odds page */
+  .matchsel{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;}
+  .matchsel::-webkit-scrollbar{display:none;}
+  .mtab{white-space:nowrap;font-size:12px;padding:7px 11px;border-radius:10px;background:var(--card2);border:1px solid var(--line);cursor:pointer;color:var(--sub);}
+  .mtab.on{background:var(--card);border-color:var(--gold);color:var(--txt);}
+  .oddshdr{background:linear-gradient(135deg,#2a230f,#161b22);border:1px solid #3a3322;border-radius:14px;padding:14px;margin:6px 0 14px;text-align:center;}
+  .oddshdr .tt{font-size:15px;font-weight:700;}
+  .oddshdr .sub{font-size:11px;color:var(--sub);margin-top:4px;}
+  .mkt{margin-bottom:18px;}
+  .mkt h5{font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .mkt h5 .hd{font-size:10px;font-weight:500;color:var(--gold);background:rgba(245,179,1,.12);padding:2px 6px;border-radius:5px;}
+  .ord3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .ocell{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;}
+  .ocell .lab{font-size:11px;color:var(--sub);}
+  .ocell .od{font-size:17px;font-weight:800;color:var(--accent2);margin-top:3px;}
+  .ocell.up .od{color:var(--live);} .ocell.dn .od{color:#60a5fa;}
+  .ordgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .ordgrid .ocell .lab{font-size:11px;color:var(--txt);}
+  .ordgrid .ocell .od{font-size:14px;}
+  .note{font-size:11px;color:var(--sub);text-align:center;max-width:380px;line-height:1.6;}
+  .legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--sub);flex-wrap:wrap;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:9px;height:9px;border-radius:50%;}
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1>⚽ 世界杯 2026 · App 原型</h1>
+    <p>Flutter + 后端代理 + API-Football。点底部标签切换 4 个页面。数据为样例。</p>
+    <span class="badge">可点击原型 v0.1</span>
+  </div>
+
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- APP BAR -->
+    <div class="appbar">
+      <div class="t" id="abTitle">赛程 Fixtures<small>FIFA World Cup 2026 🇨🇦🇲🇽🇺🇸</small></div>
+      <div class="ico">🔔</div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <!-- ===== VIEW 1: FIXTURES ===== -->
+      <div class="view show" id="v-fixtures">
+        <div class="chips">
+          <div class="chip on">全部</div>
+          <div class="chip">小组赛</div>
+          <div class="chip">16强</div>
+          <div class="chip">8强</div>
+          <div class="chip">我的关注</div>
+        </div>
+
+        <div class="daygroup">6月12日 周五</div>
+
+        <div class="match">
+          <div class="meta"><span>A组 · 洛杉矶 SoFi</span><span>20:00</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇲🇽</span><span class="nm">墨西哥</span></div>
+            <div class="vs">VS</div>
+            <div class="team right"><span class="flag">🇨🇲</span><span class="nm">喀麦隆</span></div>
+          </div>
+        </div>
+
+        <div class="match">
+          <div class="meta"><span>B组 · 多伦多</span><span>23:00</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇨🇦</span><span class="nm">加拿大</span></div>
+            <div class="vs">VS</div>
+            <div class="team right"><span class="flag">🇧🇪</span><span class="nm">比利时</span></div>
+          </div>
+        </div>
+
+        <div class="daygroup">6月13日 周六</div>
+
+        <div class="match">
+          <div class="meta"><span>C组 · 纽约</span><span>04:00</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇦🇷</span><span class="nm">阿根廷</span></div>
+            <div class="vs">VS</div>
+            <div class="team right"><span class="flag">🇸🇦</span><span class="nm">沙特</span></div>
+          </div>
+        </div>
+
+        <div class="match">
+          <div class="meta"><span>D组 · 西雅图</span><span>07:00</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇫🇷</span><span class="nm">法国</span></div>
+            <div class="vs">VS</div>
+            <div class="team right"><span class="flag">🇯🇵</span><span class="nm">日本</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW 2: LIVE ===== -->
+      <div class="view" id="v-live">
+        <div class="chips">
+          <div class="chip on">进行中 (2)</div>
+          <div class="chip">即将开始</div>
+        </div>
+
+        <!-- featured live -->
+        <div class="livehead">
+          <div class="min">🔴 直播 · 67'</div>
+          <div class="sc">
+            <span class="fl">🇧🇷</span>
+            <span class="big">2 - 1</span>
+            <span class="fl">🇩🇪</span>
+          </div>
+          <div style="font-size:12px;color:var(--sub);margin-top:8px;">E组 · 达拉斯 AT&amp;T 球场</div>
+        </div>
+
+        <div class="timeline">
+          <div class="ev"><span class="tm">12'</span><span class="ic">⚽</span><span>维尼修斯 进球 (巴西)</span></div>
+          <div class="ev r"><span class="tm">34'</span><span class="ic">🟨</span><span>基米希 黄牌 (德国)</span></div>
+          <div class="ev r"><span class="tm">41'</span><span class="ic">⚽</span><span>维尔茨 扳平 (德国)</span></div>
+          <div class="ev"><span class="tm">58'</span><span class="ic">⚽</span><span>罗德里戈 反超 (巴西)</span></div>
+          <div class="ev"><span class="tm">63'</span><span class="ic">🔄</span><span>换人: 安东尼 → 拉菲尼亚</span></div>
+        </div>
+
+        <div style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 8px;">— 其他进行中 —</div>
+
+        <div class="match">
+          <div class="meta"><span>F组 · 迈阿密</span><span class="pill live">直播 78'</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇪🇸</span><span class="nm">西班牙</span></div>
+            <div class="score">1-0</div>
+            <div class="team right"><span class="flag">🇰🇷</span><span class="nm">韩国</span></div>
+          </div>
+        </div>
+
+        <p class="note" style="margin-top:14px;">⏱ 每 30 秒自动刷新比分。下拉可手动刷新。</p>
+      </div>
+
+      <!-- ===== VIEW 3: RESULTS ===== -->
+      <div class="view" id="v-results">
+        <div class="chips">
+          <div class="chip on">全部</div>
+          <div class="chip">小组赛</div>
+          <div class="chip">淘汰赛</div>
+        </div>
+
+        <div class="daygroup">6月10日 已结束</div>
+
+        <div class="match">
+          <div class="meta"><span>A组 · 墨西哥城</span><span class="pill ft">完场</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇳🇱</span><span class="nm">荷兰</span></div>
+            <div class="score">3-1</div>
+            <div class="team right"><span class="flag">🇪🇨</span><span class="nm">厄瓜多尔</span></div>
+          </div>
+        </div>
+
+        <div class="match">
+          <div class="meta"><span>B组 · 温哥华</span><span class="pill ft">完场</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇵🇹</span><span class="nm">葡萄牙</span></div>
+            <div class="score">2-2</div>
+            <div class="team right"><span class="flag">🇺🇸</span><span class="nm">美国</span></div>
+          </div>
+        </div>
+
+        <div class="daygroup">6月9日 已结束</div>
+
+        <div class="match">
+          <div class="meta"><span>C组 · 休斯顿</span><span class="pill ft">点球 4-3</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🇮🇹</span><span class="nm">意大利</span></div>
+            <div class="score">1-1</div>
+            <div class="team right"><span class="flag">🇭🇷</span><span class="nm">克罗地亚</span></div>
+          </div>
+        </div>
+
+        <div class="match">
+          <div class="meta"><span>D组 · 亚特兰大</span><span class="pill ft">完场</span></div>
+          <div class="row">
+            <div class="team"><span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span><span class="nm">英格兰</span></div>
+            <div class="score">0-0</div>
+            <div class="team right"><span class="flag">🇩🇰</span><span class="nm">丹麦</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== VIEW 4: STANDINGS / BRACKET ===== -->
+      <div class="view" id="v-table">
+        <div class="chips">
+          <div class="chip on">积分榜</div>
+          <div class="chip" id="toBracket">淘汰赛图</div>
+        </div>
+
+        <!-- standings -->
+        <div id="standingsBox">
+          <div class="grphdr">A 组</div>
+          <table>
+            <tr><th>#</th><th class="tn" style="text-align:left">球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>净</th><th>分</th></tr>
+            <tr class="qual"><td>1</td><td class="tn">🇲🇽 墨西哥</td><td>2</td><td>2</td><td>0</td><td>0</td><td>+3</td><td>6</td></tr>
+            <tr class="qual"><td>2</td><td class="tn">🇳🇱 荷兰</td><td>2</td><td>1</td><td>1</td><td>0</td><td>+2</td><td>4</td></tr>
+            <tr><td>3</td><td class="tn">🇨🇲 喀麦隆</td><td>2</td><td>0</td><td>1</td><td>1</td><td>-1</td><td>1</td></tr>
+            <tr><td>4</td><td class="tn">🇪🇨 厄瓜多尔</td><td>2</td><td>0</td><td>0</td><td>2</td><td>-4</td><td>0</td></tr>
+          </table>
+
+          <div class="grphdr">B 组</div>
+          <table>
+            <tr><th>#</th><th class="tn" style="text-align:left">球队</th><th>赛</th><th>胜</th><th>平</th><th>负</th><th>净</th><th>分</th></tr>
+            <tr class="qual"><td>1</td><td class="tn">🇧🇪 比利时</td><td>2</td><td>1</td><td>1</td><td>0</td><td>+2</td><td>4</td></tr>
+            <tr class="qual"><td>2</td><td class="tn">🇵🇹 葡萄牙</td><td>2</td><td>1</td><td>1</td><td>0</td><td>+1</td><td>4</td></tr>
+            <tr><td>3</td><td class="tn">🇺🇸 美国</td><td>2</td><td>0</td><td>2</td><td>0</td><td>0</td><td>2</td></tr>
+            <tr><td>4</td><td class="tn">🇨🇦 加拿大</td><td>2</td><td>0</td><td>0</td><td>2</td><td>-3</td><td>0</td></tr>
+          </table>
+          <div class="legend" style="margin-top:14px;">
+            <span><span class="dot" style="background:var(--accent2)"></span>出线区 (前2)</span>
+          </div>
+        </div>
+
+        <!-- bracket -->
+        <div id="bracketBox" style="display:none;">
+          <div class="bracket">
+            <div class="round">
+              <h4>16 强</h4>
+              <div class="tie"><div><span class="w">🇲🇽 墨西哥</span><span class="s">2</span></div><div><span>🇵🇹 葡萄牙</span><span class="s">1</span></div></div>
+              <div class="tie"><div><span class="w">🇧🇷 巴西</span><span class="s">3</span></div><div><span>🇰🇷 韩国</span><span class="s">0</span></div></div>
+              <div class="tie"><div><span class="w">🇫🇷 法国</span><span class="s">2</span></div><div><span>🇳🇬 尼日利亚</span><span class="s">1</span></div></div>
+              <div class="tie"><div><span class="w">🇦🇷 阿根廷</span><span class="s">1</span></div><div><span>🇩🇪 德国</span><span class="s">0</span></div></div>
+            </div>
+            <div class="round">
+              <h4>8 强</h4>
+              <div class="tie"><div><span class="w">🇧🇷 巴西</span><span class="s">2</span></div><div><span>🇲🇽 墨西哥</span><span class="s">1</span></div></div>
+              <div class="tie"><div><span>🇫🇷 法国</span><span class="s">-</span></div><div><span>🇦🇷 阿根廷</span><span class="s">-</span></div></div>
+            </div>
+            <div class="round">
+              <h4>半决赛</h4>
+              <div class="tie"><div><span class="s">胜者</span><span class="s">-</span></div><div><span class="s">胜者</span><span class="s">-</span></div></div>
+            </div>
+            <div class="round">
+              <h4>决赛 🏆</h4>
+              <div class="tie"><div><span class="s">?</span><span class="s">-</span></div><div><span class="s">?</span><span class="s">-</span></div></div>
+            </div>
+          </div>
+          <p class="note" style="margin-top:16px;">左右滑动查看完整对阵图。</p>
+        </div>
+      </div>
+
+      <!-- ===== VIEW 5: ODDS (China Sports Lottery) ===== -->
+      <div class="view" id="v-odds">
+        <div class="matchsel">
+          <div class="mtab on">🇧🇷巴西 vs 🇩🇪德国</div>
+          <div class="mtab">🇦🇷阿根廷 vs 🇸🇦沙特</div>
+          <div class="mtab">🇫🇷法国 vs 🇯🇵日本</div>
+          <div class="mtab">🇪🇸西班牙 vs 🇰🇷韩国</div>
+        </div>
+
+        <div class="oddshdr">
+          <div class="tt">🇧🇷 巴西 vs 德国 🇩🇪</div>
+          <div class="sub">E组 · 6月14日 04:00 · 竞彩官方赔率(样例)</div>
+        </div>
+
+        <!-- 胜平负 -->
+        <div class="mkt">
+          <h5>胜平负</h5>
+          <div class="ord3">
+            <div class="ocell"><div class="lab">主胜 (巴西)</div><div class="od">1.95</div></div>
+            <div class="ocell"><div class="lab">平</div><div class="od">3.40</div></div>
+            <div class="ocell"><div class="lab">客胜 (德国)</div><div class="od">3.75</div></div>
+          </div>
+        </div>
+
+        <!-- 让球胜平负 -->
+        <div class="mkt">
+          <h5>让球胜平负 <span class="hd">让一球 (-1)</span></h5>
+          <div class="ord3">
+            <div class="ocell up"><div class="lab">主胜</div><div class="od">3.10</div></div>
+            <div class="ocell"><div class="lab">平</div><div class="od">3.30</div></div>
+            <div class="ocell dn"><div class="lab">客胜</div><div class="od">2.05</div></div>
+          </div>
+        </div>
+
+        <!-- 比分 -->
+        <div class="mkt">
+          <h5>比分</h5>
+          <div class="ordgrid">
+            <div class="ocell"><div class="lab">1:0</div><div class="od">7.5</div></div>
+            <div class="ocell"><div class="lab">2:0</div><div class="od">9.0</div></div>
+            <div class="ocell"><div class="lab">2:1</div><div class="od">8.0</div></div>
+            <div class="ocell"><div class="lab">3:1</div><div class="od">15</div></div>
+            <div class="ocell"><div class="lab">1:1</div><div class="od">6.0</div></div>
+            <div class="ocell"><div class="lab">2:2</div><div class="od">12</div></div>
+            <div class="ocell"><div class="lab">0:1</div><div class="od">11</div></div>
+            <div class="ocell"><div class="lab">其它</div><div class="od">5.5</div></div>
+          </div>
+        </div>
+
+        <!-- 总进球 -->
+        <div class="mkt">
+          <h5>总进球数</h5>
+          <div class="ordgrid">
+            <div class="ocell"><div class="lab">0</div><div class="od">9.5</div></div>
+            <div class="ocell"><div class="lab">1</div><div class="od">4.2</div></div>
+            <div class="ocell"><div class="lab">2</div><div class="od">3.1</div></div>
+            <div class="ocell"><div class="lab">3</div><div class="od">3.4</div></div>
+            <div class="ocell"><div class="lab">4</div><div class="od">5.0</div></div>
+            <div class="ocell"><div class="lab">5</div><div class="od">9.0</div></div>
+            <div class="ocell"><div class="lab">6</div><div class="od">18</div></div>
+            <div class="ocell"><div class="lab">7+</div><div class="od">30</div></div>
+          </div>
+        </div>
+
+        <!-- 半全场 -->
+        <div class="mkt">
+          <h5>半全场 <span class="hd">半场/全场</span></h5>
+          <div class="ordgrid">
+            <div class="ocell"><div class="lab">胜/胜</div><div class="od">3.0</div></div>
+            <div class="ocell"><div class="lab">胜/平</div><div class="od">15</div></div>
+            <div class="ocell"><div class="lab">胜/负</div><div class="od">29</div></div>
+            <div class="ocell"><div class="lab">平/胜</div><div class="od">5.0</div></div>
+            <div class="ocell"><div class="lab">平/平</div><div class="od">5.5</div></div>
+            <div class="ocell"><div class="lab">平/负</div><div class="od">9.0</div></div>
+            <div class="ocell"><div class="lab">负/胜</div><div class="od">26</div></div>
+            <div class="ocell"><div class="lab">负/负</div><div class="od">6.0</div></div>
+          </div>
+        </div>
+
+        <p class="note">⚠️ 赔率仅供参考(样例数据)。真实数据计划抓取第三方(500.com/okooo)。本页仅展示信息, 不提供投注。理性看球, 远离非法赌博。</p>
+      </div>
+
+    </div><!-- /body -->
+
+    <!-- BOTTOM NAV -->
+    <div class="nav">
+      <button class="active" data-v="fixtures" data-t="赛程 Fixtures"><span class="e">📅</span>赛程</button>
+      <button data-v="live" data-t="实况 Live"><span class="e">🔴</span>实况</button>
+      <button data-v="results" data-t="结果 Results"><span class="e">📊</span>结果</button>
+      <button data-v="table" data-t="积分 & 对阵"><span class="e">🏆</span>积分榜</button>
+      <button data-v="odds" data-t="竞彩赔率"><span class="e">💰</span>赔率</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:var(--live)"></span>实况比赛</span>
+    <span><span class="dot" style="background:#60a5fa"></span>未开始</span>
+    <span><span class="dot" style="background:var(--sub)"></span>已完场</span>
+  </div>
+  <p class="note">原型仅展示界面布局与交互。真实数据来自 API-Football，经后端代理缓存后下发。</p>
+
+<script>
+  const titles = {
+    fixtures:'赛程 Fixtures<small>FIFA World Cup 2026 🇨🇦🇲🇽🇺🇸</small>',
+    live:'实况 Live<small>进行中的比赛 · 自动刷新</small>',
+    results:'结果 Results<small>已完赛 · 历史比分</small>',
+    table:'积分 & 对阵<small>小组积分榜 / 淘汰赛图</small>',
+    odds:'竞彩赔率<small>中国体彩 · 仅供参考</small>'
+  };
+  document.querySelectorAll('.nav button').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const v=b.dataset.v;
+      document.querySelectorAll('.view').forEach(x=>x.classList.remove('show'));
+      document.getElementById('v-'+v).classList.add('show');
+      document.getElementById('abTitle').innerHTML=titles[v];
+      document.querySelector('.body').scrollTop=0;
+    };
+  });
+  // chip toggles within a chip row
+  document.querySelectorAll('.chips').forEach(row=>{
+    row.querySelectorAll('.chip').forEach(c=>{
+      c.onclick=()=>{row.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));c.classList.add('on');
+        if(c.id==='toBracket'){document.getElementById('standingsBox').style.display='none';document.getElementById('bracketBox').style.display='block';}
+        if(c.textContent==='积分榜'){document.getElementById('standingsBox').style.display='block';document.getElementById('bracketBox').style.display='none';}
+      };
+    });
+  });
+  // odds match selector
+  document.querySelectorAll('.matchsel .mtab').forEach(m=>{
+    m.onclick=()=>{document.querySelectorAll('.matchsel .mtab').forEach(x=>x.classList.remove('on'));m.classList.add('on');
+      document.querySelector('.oddshdr .tt').textContent=m.textContent;};
+  });
+</script>
+</body>
+</html>
