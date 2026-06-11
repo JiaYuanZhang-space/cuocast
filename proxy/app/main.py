@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from app.config import settings, TTL
 from app.cache import TTLCache
@@ -8,6 +9,12 @@ from app import mappers
 from app.odds_scraper import fetch_odds
 
 app = FastAPI(title="WorldCup Proxy")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 cache = TTLCache()
 api = ApiFootball(key=settings.api_football_key, base=settings.api_football_base)
 
@@ -23,7 +30,7 @@ async def _fixtures(extra: dict, key: str, ttl: int, mapper):
         return mapper(raw)
     try:
         return await cached_fetch(cache, key, ttl, fetch)
-    except httpx.HTTPStatusError:
+    except httpx.HTTPError:
         raise HTTPException(status_code=502, detail="upstream unavailable")
 
 @app.get("/fixtures")
@@ -45,7 +52,7 @@ async def standings():
         return mappers.map_standings(raw)
     try:
         return await cached_fetch(cache, "standings", TTL["standings"], fetch)
-    except httpx.HTTPStatusError:
+    except httpx.HTTPError:
         raise HTTPException(status_code=502, detail="upstream unavailable")
 
 @app.get("/bracket")
@@ -55,7 +62,7 @@ async def bracket():
         return mappers.map_bracket(raw)
     try:
         return await cached_fetch(cache, "bracket", TTL["bracket"], fetch)
-    except httpx.HTTPStatusError:
+    except httpx.HTTPError:
         raise HTTPException(status_code=502, detail="upstream unavailable")
 
 @app.get("/events")
