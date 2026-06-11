@@ -1,0 +1,10 @@
+{"response": [
+  {"fixture": {"id": 201, "status": {"short": "FT"}},
+   "league": {"round": "Round of 16"},
+   "teams": {"home": {"name": "Brazil"}, "away": {"name": "Korea"}},
+   "goals": {"home": 3, "away": 0}},
+  {"fixture": {"id": 202, "status": {"short": "NS"}},
+   "league": {"round": "Quarter-finals"},
+   "teams": {"home": {"name": "France"}, "away": {"name": "Argentina"}},
+   "goals": {"home": null, "away": null}}
+]}

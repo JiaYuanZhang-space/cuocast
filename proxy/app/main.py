@@ -48,6 +48,16 @@ async def standings():
     except httpx.HTTPStatusError:
         raise HTTPException(status_code=502, detail="upstream unavailable")
 
+@app.get("/bracket")
+async def bracket():
+    async def fetch():
+        raw = await api.get("/fixtures", params={**LEAGUE})
+        return mappers.map_bracket(raw)
+    try:
+        return await cached_fetch(cache, "bracket", TTL["bracket"], fetch)
+    except httpx.HTTPStatusError:
+        raise HTTPException(status_code=502, detail="upstream unavailable")
+
 @app.get("/odds")
 async def odds(matchId: str):
     import app.main as _self

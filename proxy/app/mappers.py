@@ -46,3 +46,17 @@ def map_standings(data: dict) -> list[dict]:
                 "points": row["points"],
             })
     return out
+
+
+def map_bracket(data: dict) -> dict:
+    rounds: dict[str, list] = {}
+    for item in data.get("response", []):
+        rnd = item.get("league", {}).get("round", "Unknown")
+        rounds.setdefault(rnd, []).append({
+            "id": item["fixture"]["id"],
+            "home": item["teams"]["home"]["name"],
+            "away": item["teams"]["away"]["name"],
+            "homeScore": item["goals"]["home"],
+            "awayScore": item["goals"]["away"],
+        })
+    return rounds

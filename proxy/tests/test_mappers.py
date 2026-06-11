@@ -1,5 +1,5 @@
 import json, pathlib
-from app.mappers import map_fixtures
+from app.mappers import map_fixtures, map_bracket
 
 SAMPLE = json.loads((pathlib.Path(__file__).parent / "fixtures" / "af_fixtures.json").read_text())
 
@@ -37,3 +37,11 @@ def test_map_standings():
     assert out[0] == {"rank": 1, "team": "Mexico", "played": 2, "win": 2,
                       "draw": 0, "lose": 0, "goalsDiff": 3, "points": 6}
     assert len(out) == 2
+
+KO = json.loads((pathlib.Path(__file__).parent / "fixtures" / "af_ko.json").read_text())
+
+def test_map_bracket_groups_by_round():
+    out = map_bracket(KO)
+    assert out["Round of 16"][0]["home"] == "Brazil"
+    assert out["Round of 16"][0]["homeScore"] == 3
+    assert out["Quarter-finals"][0]["homeScore"] is None
